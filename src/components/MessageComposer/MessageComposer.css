@@ -86,7 +86,7 @@
 }
 
 .tabs-wrapper::after {
-  right: 0;
+  right: 36px; /* Account for new-tab button width */
   background: linear-gradient(to left, var(--bg-secondary), transparent);
 }
 
@@ -224,7 +224,9 @@
   cursor: pointer;
   transition: all 0.1s ease;
   flex-shrink: 0;
+  align-self: flex-end;
   margin-bottom: 6px;
+  margin-left: 4px;
 }
 
 .new-tab-btn:hover {
