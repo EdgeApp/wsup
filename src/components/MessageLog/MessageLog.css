@@ -1,0 +1,240 @@
+.message-log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.log-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.log-title svg {
+  color: var(--accent);
+}
+
+.log-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+.log-connection .status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.log-connection .status-indicator.connected {
+  background: var(--success);
+  opacity: 1;
+  box-shadow: 0 0 4px var(--success);
+}
+
+.log-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-radius: 11px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.log-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.log-body-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+
+.scroll-to-bottom-fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  z-index: 10;
+  animation: fab-appear 0.2s ease;
+}
+
+@keyframes fab-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.scroll-to-bottom-fab:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.scroll-to-bottom-fab:active {
+  transform: scale(0.95);
+}
+
+.scroll-to-bottom-fab svg {
+  flex-shrink: 0;
+}
+
+.log-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.log-empty svg {
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.log-empty p {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.log-empty span {
+  font-size: 13px;
+  max-width: 280px;
+}
+
+.log-message {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.log-message.sent {
+  background: var(--msg-sent-bg);
+  border: 1px solid var(--msg-sent-border);
+}
+
+.log-message.received {
+  background: var(--msg-recv-bg);
+  border: 1px solid var(--msg-recv-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .message-header {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.message-direction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.log-message.sent .message-direction {
+  color: var(--accent);
+}
+
+.log-message.received .message-direction {
+  color: var(--msg-recv-accent);
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.message-format {
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.message-content {
+  padding: 12px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text-primary);
+}
+
+.log-message.sent .message-content {
+  color: var(--text-primary);
+}
+
+.log-message.received .message-content {
+  color: var(--text-primary);
+}
+

@@ -1,0 +1,41 @@
+{
+  "name": "wsup",
+  "version": "1.0.0",
+  "description": "A Postman-style WebSocket testing application",
+  "type": "module",
+  "main": "dist/index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "pear:dev": "pear run --dev .",
+    "pear:run": "pear run .",
+    "pear:stage": "pear stage .",
+    "pear:release": "pear release"
+  },
+  "pear": {
+    "name": "wsup",
+    "pre": "pear-electron/pre",
+    "gui": {
+      "width": 1200,
+      "height": 800,
+      "minWidth": 900,
+      "minHeight": 600
+    },
+    "links": [
+      "ws://*",
+      "wss://*",
+      "http://*",
+      "https://*"
+    ]
+  },
+  "dependencies": {
+    "pear-electron": "latest",
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-solid": "^2.8.0",
+    "typescript": "^5.3.0"
+  }
+}
+
