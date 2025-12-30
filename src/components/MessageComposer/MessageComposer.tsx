@@ -32,8 +32,37 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
   const [showSaveModal, setShowSaveModal] = createSignal(false);
   const [composerHeight, setComposerHeight] = createSignal(DEFAULT_HEIGHT);
   const [isResizing, setIsResizing] = createSignal(false);
+  const [canScrollLeft, setCanScrollLeft] = createSignal(false);
+  const [canScrollRight, setCanScrollRight] = createSignal(false);
   
   let composerRef: HTMLDivElement | undefined;
+  let tabsContainerRef: HTMLDivElement | undefined;
+
+  // Update scroll indicators
+  const updateScrollIndicators = () => {
+    if (!tabsContainerRef) return;
+    const { scrollLeft, scrollWidth, clientWidth } = tabsContainerRef;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  onMount(() => {
+    updateScrollIndicators();
+    // Also update on resize
+    const resizeObserver = new ResizeObserver(updateScrollIndicators);
+    if (tabsContainerRef) {
+      resizeObserver.observe(tabsContainerRef);
+    }
+    onCleanup(() => resizeObserver.disconnect());
+  });
+
+  // Update indicators when tabs change
+  createEffect(() => {
+    // Track tabs array
+    props.tabs.length;
+    // Defer to next frame to let DOM update
+    requestAnimationFrame(updateScrollIndicators);
+  });
 
   // Handle resize drag
   const handleResizeStart = (e: MouseEvent) => {
@@ -308,42 +337,54 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
 
       {/* Tab Bar */}
       <div class="tab-bar">
-        <div class="tabs-container">
-          <For each={props.tabs}>
-            {(tab) => {
-              const isActive = () => tab.id === props.activeTabId;
-              const isModified = () => props.isTabModified(tab);
-              
-              return (
-                <div 
-                  class="tab" 
-                  classList={{ active: isActive(), modified: isModified() }}
-                  onClick={() => props.onTabSelect(tab.id)}
-                >
-                  <span class="tab-name">{tab.name || 'Untitled'}</span>
-                  <Show when={isModified()}>
-                    <span class="tab-modified-dot">•</span>
-                  </Show>
-                  <button 
-                    class="tab-close"
-                    onClick={(e) => handleTabClose(e, tab.id)}
-                    title="Close tab"
+        <div 
+          class="tabs-wrapper"
+          classList={{ 
+            'can-scroll-left': canScrollLeft(),
+            'can-scroll-right': canScrollRight()
+          }}
+        >
+          <div 
+            class="tabs-container" 
+            ref={tabsContainerRef}
+            onScroll={updateScrollIndicators}
+          >
+            <For each={props.tabs}>
+              {(tab) => {
+                const isActive = () => tab.id === props.activeTabId;
+                const isModified = () => props.isTabModified(tab);
+                
+                return (
+                  <div 
+                    class="tab" 
+                    classList={{ active: isActive(), modified: isModified() }}
+                    onClick={() => props.onTabSelect(tab.id)}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                </div>
-              );
-            }}
-          </For>
-          <button class="new-tab-btn" onClick={() => props.onNewTab()} title="New tab (⌘T)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+                    <span class="tab-name">{tab.name || 'Untitled'}</span>
+                    <Show when={isModified()}>
+                      <span class="tab-modified-dot">•</span>
+                    </Show>
+                    <button 
+                      class="tab-close"
+                      onClick={(e) => handleTabClose(e, tab.id)}
+                      title="Close tab"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                );
+              }}
+            </For>
+            <button class="new-tab-btn" onClick={() => props.onNewTab()} title="New tab (⌘T)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
