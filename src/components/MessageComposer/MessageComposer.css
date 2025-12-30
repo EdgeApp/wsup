@@ -64,6 +64,7 @@
   align-items: flex-end;
   gap: 2px;
   overflow-x: auto;
+  overflow-y: hidden;
   flex: 1;
   padding-top: 8px;
 }
