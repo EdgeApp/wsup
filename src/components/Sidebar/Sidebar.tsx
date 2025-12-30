@@ -309,7 +309,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         <div class="collections-list">
           <For each={collections.collections}>
             {(collection) => (
-              <div class="collection" classList={{ expanded: collection.isExpanded }}>
+              <div class="collection">
                 <div
                   class="collection-header"
                   onClick={() => toggleCollection(collection.id)}

@@ -161,21 +161,12 @@
 
 .collections-list {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   padding-bottom: 8px;
 }
 
 .collection {
-  display: flex;
-  flex-direction: column;
   border-bottom: 1px solid var(--border);
-  min-height: 0;
-}
-
-.collection.expanded {
-  flex: 1;
 }
 
 .collection:last-child {
@@ -241,10 +232,7 @@
 }
 
 .collection-items {
-  flex: 1;
   padding: 4px 8px 8px 8px;
-  overflow-y: auto;
-  min-height: 0;
 }
 
 /* Template Items */
