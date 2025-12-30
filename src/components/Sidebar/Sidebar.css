@@ -8,15 +8,103 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   padding: 16px;
+  height: 61px;
+  box-sizing: border-box;
   border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  -webkit-app-region: drag;
+  app-region: drag;
+  user-select: none;
+}
+
+/* Window Controls (macOS style) */
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.window-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.window-btn-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.window-controls:hover .window-btn-icon {
+  opacity: 1;
+}
+
+.window-btn.close {
+  background: #ff5f57;
+}
+
+.window-btn.close:hover {
+  background: #ff3b30;
+}
+
+.window-btn.close .window-btn-icon::before {
+  content: '×';
+  font-size: 10px;
+  font-weight: bold;
+  color: #4a0002;
+  line-height: 1;
+}
+
+.window-btn.minimize {
+  background: #febc2e;
+}
+
+.window-btn.minimize:hover {
+  background: #f5a623;
+}
+
+.window-btn.minimize .window-btn-icon::before {
+  content: '−';
+  font-size: 12px;
+  font-weight: bold;
+  color: #985700;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+.window-btn.maximize {
+  background: #28c840;
+}
+
+.window-btn.maximize:hover {
+  background: #1fb834;
+}
+
+.window-btn.maximize .window-btn-icon::before {
+  content: '+';
+  font-size: 10px;
+  font-weight: bold;
+  color: #006500;
+  line-height: 1;
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sidebar-logo svg {

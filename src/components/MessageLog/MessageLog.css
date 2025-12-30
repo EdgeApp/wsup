@@ -10,9 +10,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  padding: 16px 24px;
+  height: 61px;
+  box-sizing: border-box;
   border-bottom: 1px solid var(--border);
   background: var(--bg-secondary);
+  -webkit-app-region: drag;
+  app-region: drag;
+  user-select: none;
 }
 
 .log-title {
@@ -71,6 +76,8 @@
 .log-controls {
   display: flex;
   gap: 4px;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 }
 
 .log-body-wrapper {

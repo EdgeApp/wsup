@@ -173,11 +173,71 @@ export const Sidebar: Component<SidebarProps> = (props) => {
     return props.activeTab?.templateId === templateId;
   };
 
+  // Window control handlers for Pear/Electron
+  const getElectronWindow = () => {
+    try {
+      // Try to get electron remote module (pear-electron)
+      // @ts-ignore
+      const electron = window.require?.('electron');
+      if (electron?.remote) {
+        return electron.remote.getCurrentWindow();
+      }
+      // Try @electron/remote
+      // @ts-ignore
+      const remote = window.require?.('@electron/remote');
+      if (remote) {
+        return remote.getCurrentWindow();
+      }
+    } catch (e) {
+      // Not in electron environment
+    }
+    return null;
+  };
+
+  const handleMinimize = () => {
+    const win = getElectronWindow();
+    if (win) {
+      win.minimize();
+    }
+  };
+
+  const handleMaximize = () => {
+    const win = getElectronWindow();
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize();
+      } else {
+        win.maximize();
+      }
+    }
+  };
+
+  const handleClose = () => {
+    const win = getElectronWindow();
+    if (win) {
+      win.close();
+    } else {
+      // Fallback for web environment
+      window.close();
+    }
+  };
+
   return (
     <div class="sidebar-content">
       <div class="sidebar-header">
+        <div class="window-controls">
+          <button class="window-btn close" onClick={handleClose} title="Close">
+            <span class="window-btn-icon" />
+          </button>
+          <button class="window-btn minimize" onClick={handleMinimize} title="Minimize">
+            <span class="window-btn-icon" />
+          </button>
+          <button class="window-btn maximize" onClick={handleMaximize} title="Maximize">
+            <span class="window-btn-icon" />
+          </button>
+        </div>
         <div class="sidebar-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 11a9 9 0 0 1 9 9"></path>
             <path d="M4 4a16 16 0 0 1 16 16"></path>
             <circle cx="5" cy="19" r="2"></circle>
