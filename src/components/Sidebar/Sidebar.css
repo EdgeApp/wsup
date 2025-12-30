@@ -154,6 +154,7 @@
 }
 
 .sidebar-section:last-child {
+  flex-shrink: 0;
   max-height: 200px;
   border-top: 1px solid var(--border);
 }

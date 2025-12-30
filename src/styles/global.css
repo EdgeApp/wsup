@@ -232,5 +232,6 @@ input, textarea, select {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
