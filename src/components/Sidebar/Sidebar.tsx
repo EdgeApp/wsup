@@ -174,52 +174,75 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   };
 
   // Window control handlers for Pear/Electron
-  const getElectronWindow = () => {
+  const handleMinimize = () => {
     try {
-      // Try to get electron remote module (pear-electron)
+      // Try Pear API first (pear-electron exposes Pear.gui)
       // @ts-ignore
-      const electron = window.require?.('electron');
-      if (electron?.remote) {
-        return electron.remote.getCurrentWindow();
+      if (window.Pear?.gui?.minimize) {
+        // @ts-ignore
+        window.Pear.gui.minimize();
+        return;
       }
-      // Try @electron/remote
+      // Try electron ipcRenderer
       // @ts-ignore
-      const remote = window.require?.('@electron/remote');
-      if (remote) {
-        return remote.getCurrentWindow();
+      const { ipcRenderer } = window.require?.('electron') || {};
+      if (ipcRenderer) {
+        ipcRenderer.send('minimize');
+        return;
       }
     } catch (e) {
-      // Not in electron environment
-    }
-    return null;
-  };
-
-  const handleMinimize = () => {
-    const win = getElectronWindow();
-    if (win) {
-      win.minimize();
+      // Not in Pear/Electron environment
     }
   };
 
   const handleMaximize = () => {
-    const win = getElectronWindow();
-    if (win) {
-      if (win.isMaximized()) {
-        win.unmaximize();
-      } else {
-        win.maximize();
+    try {
+      // Try Pear API first
+      // @ts-ignore
+      if (window.Pear?.gui?.maximize) {
+        // @ts-ignore
+        window.Pear.gui.maximize();
+        return;
       }
+      // Try electron ipcRenderer
+      // @ts-ignore
+      const { ipcRenderer } = window.require?.('electron') || {};
+      if (ipcRenderer) {
+        ipcRenderer.send('maximize');
+        return;
+      }
+    } catch (e) {
+      // Not in Pear/Electron environment
+    }
+    // Web fallback: toggle fullscreen
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
     }
   };
 
   const handleClose = () => {
-    const win = getElectronWindow();
-    if (win) {
-      win.close();
-    } else {
-      // Fallback for web environment
-      window.close();
+    try {
+      // Try Pear API first
+      // @ts-ignore
+      if (window.Pear?.gui?.close) {
+        // @ts-ignore
+        window.Pear.gui.close();
+        return;
+      }
+      // Try electron ipcRenderer
+      // @ts-ignore
+      const { ipcRenderer } = window.require?.('electron') || {};
+      if (ipcRenderer) {
+        ipcRenderer.send('close');
+        return;
+      }
+    } catch (e) {
+      // Not in Pear/Electron environment
     }
+    // Web fallback
+    window.close();
   };
 
   return (
@@ -286,7 +309,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         <div class="collections-list">
           <For each={collections.collections}>
             {(collection) => (
-              <div class="collection">
+              <div class="collection" classList={{ expanded: collection.isExpanded }}>
                 <div
                   class="collection-header"
                   onClick={() => toggleCollection(collection.id)}
@@ -361,17 +384,17 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                           <div
                             class="template-item"
                             classList={{ open: isOpen() }}
+                            onClick={() => {
+                              if (isRenaming()) return;
+                              // Open the template (or focus if already open)
+                              handleSelectTemplate(template);
+                            }}
                             onDblClick={() => {
                               if (isRenaming()) return;
-                              if (isOpen()) {
-                                // Template is already open, enter rename mode
-                                handleStartRename(collection.id, template);
-                              } else {
-                                // Open the template
-                                handleSelectTemplate(template);
-                              }
+                              // Double-click to rename
+                              handleStartRename(collection.id, template);
                             }}
-                            title={isRenaming() ? undefined : isOpen() ? `Double-click to rename` : `Double-click to open: ${template.description || template.content}`}
+                            title={isRenaming() ? undefined : `Click to open, double-click to rename`}
                           >
                             <div class="template-info">
                               <Show 
