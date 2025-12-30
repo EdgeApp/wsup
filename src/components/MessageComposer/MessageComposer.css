@@ -271,17 +271,6 @@
   color: var(--danger);
 }
 
-/* Collection Picker */
-.collection-picker {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.collection-picker .select {
-  min-width: 140px;
-}
-
 .format-select {
   min-width: 100px;
 }

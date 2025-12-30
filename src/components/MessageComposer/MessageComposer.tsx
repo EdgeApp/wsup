@@ -3,6 +3,7 @@ import { useConnection, MessageFormat } from '../../stores/connections';
 import { useCollections, MessageTemplate } from '../../stores/collections';
 import { isValidJson, formatJson } from '../../utils/formatters';
 import { MessageTab } from '../../App';
+import { SaveModal } from '../SaveModal/SaveModal';
 import './MessageComposer.css';
 
 interface MessageComposerProps {
@@ -25,10 +26,10 @@ const VARIABLE_REGEX = /\{\{(\w+)\}\}/g;
 
 export const MessageComposer: Component<MessageComposerProps> = (props) => {
   const { selectedConnection, send } = useConnection();
-  const { state: collections, updateTemplate, addTemplate } = useCollections();
+  const { state: collections, updateTemplate, addTemplate, addCollection } = useCollections();
   
   const [jsonError, setJsonError] = createSignal<string | null>(null);
-  const [showCollectionPicker, setShowCollectionPicker] = createSignal(false);
+  const [showSaveModal, setShowSaveModal] = createSignal(false);
   const [composerHeight, setComposerHeight] = createSignal(DEFAULT_HEIGHT);
   const [isResizing, setIsResizing] = createSignal(false);
   
@@ -247,14 +248,14 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
     });
   };
 
-  const handleSaveNewTemplate = (collectionId: string) => {
+  const handleSaveNewTemplate = (collectionId: string, templateName: string) => {
     const tab = activeTab();
     if (!tab) return;
     
     const content = tab.content.trim();
     if (!content) return;
 
-    const name = 'Untitled';
+    const name = templateName || 'Untitled';
     const variables = detectedVariables().map((varName) => ({
       name: varName,
       defaultValue: variableValues()[varName] || '',
@@ -274,11 +275,11 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
       props.onTabSaved(tab.id, newTemplate);
     }
 
-    setShowCollectionPicker(false);
+    setShowSaveModal(false);
   };
 
   const handleSaveClick = () => {
-    setShowCollectionPicker(true);
+    setShowSaveModal(true);
   };
 
   const handleTabClose = (e: MouseEvent, tabId: string) => {
@@ -406,70 +407,47 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
         </Show>
       </div>
 
+      {/* Save Modal */}
+      <SaveModal
+        isOpen={showSaveModal()}
+        collections={collections.collections}
+        onSave={handleSaveNewTemplate}
+        onCancel={() => setShowSaveModal(false)}
+        onCreateCollection={addCollection}
+      />
+
       <div class="composer-footer">
         <div class="composer-controls-left">
-          <Show when={showCollectionPicker()}>
-            <div class="collection-picker">
-              <select
-                class="select"
-                value=""
-                onChange={(e) => {
-                  const id = e.currentTarget.value;
-                  if (id) {
-                    handleSaveNewTemplate(id);
-                  }
-                }}
-              >
-                <option value="" disabled>Save to...</option>
-                <For each={collections.collections}>
-                  {(col) => <option value={col.id}>{col.name}</option>}
-                </For>
-              </select>
-              <button
-                class="btn-icon btn-sm"
-                onClick={() => setShowCollectionPicker(false)}
-                title="Cancel"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
+          {/* Save button for unsaved tabs */}
+          <Show when={activeTab() && !activeTab()?.templateId && message().trim()}>
+            <button
+              class="btn btn-sm btn-save-tab"
+              onClick={handleSaveClick}
+              title="Save as template (⌘S)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save
+            </button>
           </Show>
           
-          <Show when={!showCollectionPicker()}>
-            {/* Save button for unsaved tabs */}
-            <Show when={activeTab() && !activeTab()?.templateId && message().trim()}>
-              <button
-                class="btn btn-sm btn-save-tab"
-                onClick={handleSaveClick}
-                title="Save as template"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                  <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-                Save
-              </button>
-            </Show>
-            
-            {/* Update button for modified template tabs */}
-            <Show when={activeTab()?.templateId && isCurrentTabModified()}>
-              <button
-                class="btn btn-sm btn-update-tab"
-                onClick={handleUpdateTemplate}
-                title="Save changes (⌘S)"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                  <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-                Update
-              </button>
-            </Show>
+          {/* Update button for modified template tabs */}
+          <Show when={activeTab()?.templateId && isCurrentTabModified()}>
+            <button
+              class="btn btn-sm btn-update-tab"
+              onClick={handleUpdateTemplate}
+              title="Save changes (⌘S)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Update
+            </button>
           </Show>
 
           <select
