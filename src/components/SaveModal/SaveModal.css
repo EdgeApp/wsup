@@ -167,7 +167,7 @@
 }
 
 /* Collections List */
-.collections-list {
+.save-modal .collections-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
