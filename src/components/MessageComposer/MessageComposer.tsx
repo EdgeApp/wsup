@@ -37,6 +37,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
   
   let composerRef: HTMLDivElement | undefined;
   let tabsContainerRef: HTMLDivElement | undefined;
+  const tabRefs = new Map<string, HTMLDivElement>();
 
   // Update scroll indicators
   const updateScrollIndicators = () => {
@@ -44,6 +45,19 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
     const { scrollLeft, scrollWidth, clientWidth } = tabsContainerRef;
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  // Scroll active tab into view
+  const scrollActiveTabIntoView = () => {
+    const activeId = props.activeTabId;
+    if (!activeId) return;
+    
+    const tabEl = tabRefs.get(activeId);
+    if (tabEl) {
+      tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      // Update scroll indicators after scroll animation
+      setTimeout(updateScrollIndicators, 150);
+    }
   };
 
   onMount(() => {
@@ -62,6 +76,15 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
     props.tabs.length;
     // Defer to next frame to let DOM update
     requestAnimationFrame(updateScrollIndicators);
+  });
+
+  // Scroll active tab into view when activeTabId changes
+  createEffect(() => {
+    const activeId = props.activeTabId;
+    if (activeId) {
+      // Defer to next frame to ensure DOM is updated
+      requestAnimationFrame(scrollActiveTabIntoView);
+    }
   });
 
   // Handle resize drag
@@ -359,6 +382,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
                     class="tab" 
                     classList={{ active: isActive(), modified: isModified() }}
                     onClick={() => props.onTabSelect(tab.id)}
+                    ref={(el) => tabRefs.set(tab.id, el)}
                   >
                     <span class="tab-name">{tab.name || 'Untitled'}</span>
                     <Show when={isModified()}>
