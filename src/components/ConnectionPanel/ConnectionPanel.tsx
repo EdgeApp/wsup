@@ -1,7 +1,8 @@
 import { Component, createSignal, Show } from 'solid-js';
 import { useConnection } from '../../stores/connections';
 import { useCollections } from '../../stores/collections';
-import './ConnectionPanel.css';
+import * as styles from './ConnectionPanel.css';
+import { btn, btnPrimary, btnDanger, input, inputMono, badge, badgeSuccess, badgeWarning, badgeDanger, badgeMuted } from '../../styles/global.css';
 
 export const ConnectionPanel: Component = () => {
   const { state, connect, disconnect, setUrl } = useConnection();
@@ -26,12 +27,12 @@ export const ConnectionPanel: Component = () => {
     }
   };
 
-  const getStatusColor = () => {
+  const getBadgeClass = () => {
     switch (state.status) {
-      case 'connected': return 'success';
-      case 'connecting': return 'warning';
-      case 'error': return 'danger';
-      default: return 'muted';
+      case 'connected': return badgeSuccess;
+      case 'connecting': return badgeWarning;
+      case 'error': return badgeDanger;
+      default: return badgeMuted;
     }
   };
 
@@ -45,9 +46,9 @@ export const ConnectionPanel: Component = () => {
   };
 
   return (
-    <div class="connection-panel">
-      <div class="connection-header">
-        <div class="connection-title">
+    <div class={styles.connectionPanel}>
+      <div class={styles.connectionHeader}>
+        <div class={styles.connectionTitle}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 11a9 9 0 0 1 9 9"></path>
             <path d="M4 4a16 16 0 0 1 16 16"></path>
@@ -55,17 +56,17 @@ export const ConnectionPanel: Component = () => {
           </svg>
           <span>WebSocket Connection</span>
         </div>
-        <div class={`connection-status badge badge-${getStatusColor()}`}>
-          <span class="status-dot"></span>
+        <div class={`${styles.connectionStatus} ${badge} ${getBadgeClass()}`}>
+          <span class={styles.statusDot}></span>
           {getStatusText()}
         </div>
       </div>
 
-      <div class="connection-form">
-        <div class="url-input-group">
+      <div class={styles.connectionForm}>
+        <div class={styles.urlInputGroup}>
           <input
             type="text"
-            class="input input-mono url-input"
+            class={`${input} ${inputMono} ${styles.urlInput}`}
             placeholder="wss://echo.websocket.org"
             value={inputUrl()}
             onInput={(e) => setInputUrl(e.currentTarget.value)}
@@ -78,7 +79,7 @@ export const ConnectionPanel: Component = () => {
           when={state.status === 'connected' || state.status === 'connecting'}
           fallback={
             <button
-              class="btn btn-primary connect-btn"
+              class={`${btn} ${btnPrimary} ${styles.connectBtn}`}
               onClick={handleConnect}
               disabled={!inputUrl().trim()}
             >
@@ -89,7 +90,7 @@ export const ConnectionPanel: Component = () => {
             </button>
           }
         >
-          <button class="btn btn-danger connect-btn" onClick={handleDisconnect}>
+          <button class={`${btn} ${btnDanger} ${styles.connectBtn}`} onClick={handleDisconnect}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
             </svg>
@@ -99,7 +100,7 @@ export const ConnectionPanel: Component = () => {
       </div>
 
       <Show when={state.error}>
-        <div class="connection-error">
+        <div class={styles.connectionError}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>

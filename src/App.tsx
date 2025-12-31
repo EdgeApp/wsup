@@ -6,6 +6,7 @@ import { ThemeToggle } from './components/ThemeToggle/ThemeToggle';
 import { ConnectionProvider } from './stores/connections';
 import { CollectionsProvider, MessageTemplate } from './stores/collections';
 import { MessageFormat } from './stores/connections';
+import { app, sidebar, sidebarFooter, mainPanel } from './styles/global.css';
 
 // Tab represents an open message editor
 export interface MessageTab {
@@ -164,17 +165,17 @@ const App: Component = () => {
   return (
     <CollectionsProvider>
       <ConnectionProvider>
-        <div class="app" data-theme={theme()}>
-          <aside class="sidebar">
+        <div class={app} data-theme={theme()}>
+          <aside class={sidebar}>
             <Sidebar 
               onSelectTemplate={openTemplateInTab}
               activeTab={activeTab()}
             />
-            <div class="sidebar-footer">
+            <div class={sidebarFooter}>
               <ThemeToggle theme={theme()} onToggle={toggleTheme} />
             </div>
           </aside>
-          <main class="main-panel">
+          <main class={mainPanel}>
             <MessageLog />
             <MessageComposer 
               tabs={tabs()}

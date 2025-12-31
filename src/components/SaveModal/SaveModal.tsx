@@ -1,6 +1,7 @@
 import { Component, createSignal, For, Show, onMount, createEffect } from 'solid-js';
 import { Collection } from '../../stores/collections';
-import './SaveModal.css';
+import * as styles from './SaveModal.css';
+import { btn, btnPrimary, btnSecondary, input } from '../../styles/global.css';
 
 interface SaveModalProps {
   isOpen: boolean;
@@ -77,10 +78,10 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
 
   return (
     <Show when={props.isOpen}>
-      <div class="modal-overlay" onClick={props.onCancel} onKeyDown={handleKeyDown}>
-        <div class="save-modal" onClick={(e) => e.stopPropagation()}>
-          <div class="modal-header">
-            <div class="modal-title">
+      <div class={styles.modalOverlay} onClick={props.onCancel} onKeyDown={handleKeyDown}>
+        <div class={styles.saveModal} onClick={(e) => e.stopPropagation()}>
+          <div class={styles.modalHeader}>
+            <div class={styles.modalTitle}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -88,7 +89,7 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
               </svg>
               <span>Save Message</span>
             </div>
-            <button class="modal-close" onClick={props.onCancel}>
+            <button class={styles.modalClose} onClick={props.onCancel}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -96,13 +97,13 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
             </button>
           </div>
 
-          <div class="modal-body">
-            <div class="form-group">
-              <label class="form-label">Name</label>
+          <div class={styles.modalBody}>
+            <div class={styles.formGroup}>
+              <label class={styles.formLabel}>Name</label>
               <input
                 ref={nameInputRef}
                 type="text"
-                class="input modal-input"
+                class={`${input} ${styles.modalInput}`}
                 value={templateName()}
                 onInput={(e) => setTemplateName(e.currentTarget.value)}
                 onKeyDown={handleKeyDown}
@@ -110,12 +111,12 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
               />
             </div>
 
-            <div class="form-group">
-              <div class="form-label-row">
-                <label class="form-label">Collection</label>
+            <div class={styles.formGroup}>
+              <div class={styles.formLabelRow}>
+                <label class={styles.formLabel}>Collection</label>
                 <Show when={!showNewCollection()}>
                   <button 
-                    class="btn-new-collection" 
+                    class={styles.btnNewCollection} 
                     onClick={() => {
                       setShowNewCollection(true);
                       setTimeout(() => newCollectionInputRef?.focus(), 0);
@@ -131,25 +132,25 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
               </div>
 
               <Show when={showNewCollection()}>
-                <div class="new-collection-inline">
+                <div class={styles.newCollectionInline}>
                   <input
                     ref={newCollectionInputRef}
                     type="text"
-                    class="input modal-input"
+                    class={`${input} ${styles.modalInput}`}
                     value={newCollectionName()}
                     onInput={(e) => setNewCollectionName(e.currentTarget.value)}
                     onKeyDown={handleNewCollectionKeyDown}
                     placeholder="Collection name"
                   />
                   <button 
-                    class="btn btn-sm btn-primary" 
+                    class={`${btn} ${btnPrimary}`} 
                     onClick={handleCreateCollection}
                     disabled={!newCollectionName().trim()}
                   >
                     Create
                   </button>
                   <button 
-                    class="btn btn-sm btn-secondary" 
+                    class={`${btn} ${btnSecondary}`} 
                     onClick={() => {
                       setShowNewCollection(false);
                       setNewCollectionName('');
@@ -160,33 +161,32 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
                 </div>
               </Show>
 
-              <div class="collections-list">
+              <div class={styles.collectionsList}>
                 <For each={props.collections}>
                   {(collection) => (
                     <div
-                      class="collection-option"
-                      classList={{ selected: selectedCollectionId() === collection.id }}
+                      class={`${styles.collectionOption} ${selectedCollectionId() === collection.id ? styles.collectionOptionSelected : ''}`}
                       onClick={() => setSelectedCollectionId(collection.id)}
                     >
-                      <div class="collection-radio">
+                      <div class={styles.collectionRadio}>
                         <Show when={selectedCollectionId() === collection.id}>
-                          <div class="radio-dot" />
+                          <div class={styles.radioDot} />
                         </Show>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                       </svg>
-                      <span class="collection-option-name">{collection.name}</span>
-                      <span class="collection-count">{collection.templates.length}</span>
+                      <span class={styles.collectionOptionName}>{collection.name}</span>
+                      <span class={styles.collectionCount}>{collection.templates.length}</span>
                     </div>
                   )}
                 </For>
                 
                 <Show when={props.collections.length === 0}>
-                  <div class="empty-collections">
+                  <div class={styles.emptyCollections}>
                     <span>No collections yet</span>
                     <button 
-                      class="btn-create-first"
+                      class={styles.btnCreateFirst}
                       onClick={() => {
                         setShowNewCollection(true);
                         setTimeout(() => newCollectionInputRef?.focus(), 0);
@@ -200,12 +200,12 @@ export const SaveModal: Component<SaveModalProps> = (props) => {
             </div>
           </div>
 
-          <div class="modal-footer">
-            <button class="btn btn-secondary" onClick={props.onCancel}>
+          <div class={styles.modalFooter}>
+            <button class={`${btn} ${btnSecondary}`} onClick={props.onCancel}>
               Cancel
             </button>
             <button 
-              class="btn btn-primary" 
+              class={`${btn} ${btnPrimary}`} 
               onClick={handleSave}
               disabled={!selectedCollectionId()}
             >

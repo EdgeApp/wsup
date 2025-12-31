@@ -4,7 +4,8 @@ import { useCollections, MessageTemplate } from '../../stores/collections';
 import { isValidJson, formatJson } from '../../utils/formatters';
 import { MessageTab } from '../../App';
 import { SaveModal } from '../SaveModal/SaveModal';
-import './MessageComposer.css';
+import * as styles from './MessageComposer.css';
+import { btn, btnPrimary, btnIcon, input, inputMono, select } from '../../styles/global.css';
 
 interface MessageComposerProps {
   tabs: MessageTab[];
@@ -348,27 +349,22 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
 
   return (
     <div 
-      class="message-composer" 
-      classList={{ 'is-resizing': isResizing() }}
+      class={`${styles.messageComposer} ${isResizing() ? styles.messageComposerResizing : ''}`}
       ref={composerRef}
       style={{ height: `${composerHeight()}px` }}
     >
       {/* Resize Handle */}
-      <div class="resize-handle" onMouseDown={handleResizeStart}>
-        <div class="resize-handle-bar"></div>
+      <div class={styles.resizeHandle} onMouseDown={handleResizeStart}>
+        <div class={styles.resizeHandleBar}></div>
       </div>
 
       {/* Tab Bar */}
-      <div class="tab-bar">
+      <div class={styles.tabBar}>
         <div 
-          class="tabs-wrapper"
-          classList={{ 
-            'can-scroll-left': canScrollLeft(),
-            'can-scroll-right': canScrollRight()
-          }}
+          class={`${styles.tabsWrapper} ${canScrollLeft() ? styles.tabsWrapperCanScrollLeft : ''} ${canScrollRight() ? styles.tabsWrapperCanScrollRight : ''}`}
         >
           <div 
-            class="tabs-container" 
+            class={styles.tabsContainer} 
             ref={tabsContainerRef}
             onScroll={updateScrollIndicators}
           >
@@ -379,17 +375,16 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
                 
                 return (
                   <div 
-                    class="tab" 
-                    classList={{ active: isActive(), modified: isModified() }}
+                    class={`${styles.tab} ${isActive() ? styles.tabActive : ''} ${isModified() ? styles.tabModified : ''}`}
                     onClick={() => props.onTabSelect(tab.id)}
                     ref={(el) => tabRefs.set(tab.id, el)}
                   >
-                    <span class="tab-name">{tab.name || 'Untitled'}</span>
+                    <span class={styles.tabName}>{tab.name || 'Untitled'}</span>
                     <Show when={isModified()}>
-                      <span class="tab-modified-dot">•</span>
+                      <span class={styles.tabModifiedDot}>•</span>
                     </Show>
                     <button 
-                      class="tab-close"
+                      class={styles.tabClose}
                       onClick={(e) => handleTabClose(e, tab.id)}
                       title="Close tab"
                     >
@@ -403,7 +398,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
               }}
             </For>
           </div>
-          <button class="new-tab-btn" onClick={() => props.onNewTab()} title="New tab (⌘T)">
+          <button class={styles.newTabBtn} onClick={() => props.onNewTab()} title="New tab (⌘T)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -413,10 +408,10 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
       </div>
 
       {/* Two-column content area */}
-      <div class="composer-content">
-        <div class="composer-body">
+      <div class={styles.composerContent}>
+        <div class={styles.composerBody}>
           <textarea
-            class="input input-mono composer-textarea"
+            class={`${input} ${inputMono} ${styles.composerTextarea} ${jsonError() ? styles.composerTextareaHasError : ''}`}
             placeholder={
               format() === 'json'
                 ? '{"message": "Hello, {{name}}!"}'
@@ -427,11 +422,10 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
             value={message()}
             onInput={(e) => handleMessageInput(e.currentTarget.value)}
             onKeyDown={handleKeyDown}
-            classList={{ 'has-error': !!jsonError() }}
           />
 
           <Show when={jsonError()}>
-            <div class="composer-error">
+            <div class={styles.composerError}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -443,22 +437,22 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
         </div>
 
         <Show when={hasVariables()}>
-          <div class="template-variables">
-            <div class="variables-header">
+          <div class={styles.templateVariables}>
+            <div class={styles.variablesHeader}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="4 17 10 11 4 5"></polyline>
                 <line x1="12" y1="19" x2="20" y2="19"></line>
               </svg>
               <span>Variables</span>
             </div>
-            <div class="variables-grid">
+            <div class={styles.variablesGrid}>
               <For each={detectedVariables()}>
                 {(name) => (
-                  <div class="variable-field">
-                    <label class="variable-label">{`{{${name}}}`}</label>
+                  <div class={styles.variableField}>
+                    <label class={styles.variableLabel}>{`{{${name}}}`}</label>
                     <input
                       type="text"
-                      class="input input-mono variable-input"
+                      class={`${input} ${inputMono} ${styles.variableInput}`}
                       value={variableValues()[name] || ''}
                       onInput={(e) => handleVariableChange(name, e.currentTarget.value)}
                       placeholder={`Value for ${name}`}
@@ -481,12 +475,12 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
         onCreateCollection={addCollection}
       />
 
-      <div class="composer-footer">
-        <div class="composer-controls-left">
+      <div class={styles.composerFooter}>
+        <div class={styles.composerControlsLeft}>
           {/* Save button for unsaved tabs */}
           <Show when={activeTab() && !activeTab()?.templateId && message().trim()}>
             <button
-              class="btn btn-sm btn-save-tab"
+              class={`${btn} ${styles.btnSaveTab}`}
               onClick={handleSaveClick}
               title="Save as template (⌘S)"
             >
@@ -502,7 +496,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
           {/* Update button for modified template tabs */}
           <Show when={activeTab()?.templateId && isCurrentTabModified()}>
             <button
-              class="btn btn-sm btn-update-tab"
+              class={`${btn} ${styles.btnUpdateTab}`}
               onClick={handleUpdateTemplate}
               title="Save changes (⌘S)"
             >
@@ -516,7 +510,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
           </Show>
 
           <select
-            class="select format-select"
+            class={`${select} ${styles.formatSelect}`}
             value={format()}
             onChange={(e) => handleFormatChange(e.currentTarget.value as MessageFormat)}
           >
@@ -527,7 +521,7 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
 
           <Show when={format() === 'json'}>
             <button
-              class="btn-icon"
+              class={btnIcon}
               onClick={handleFormatJson}
               disabled={!message().trim()}
               title="Prettify JSON"
@@ -541,31 +535,31 @@ export const MessageComposer: Component<MessageComposerProps> = (props) => {
           </Show>
         </div>
 
-        <div class="composer-controls-right">
-          <div class="composer-hints">
+        <div class={styles.composerControlsRight}>
+          <div class={styles.composerHints}>
             <Show 
               when={hasVariables()}
               fallback={
-                <span class="composer-hint hint-muted">
+                <span class={`${styles.composerHint} ${styles.hintMuted}`}>
                   <code>{`{{var}}`}</code> for variables
                 </span>
               }
             >
-              <span class="composer-hint variable-hint">
+              <span class={`${styles.composerHint} ${styles.variableHint}`}>
                 <Show 
                   when={!hasUnresolvedVariables()}
-                  fallback={<span class="hint-warning">Fill in all variables</span>}
+                  fallback={<span class={styles.hintWarning}>Fill in all variables</span>}
                 >
-                  <span class="hint-ready">Variables ready</span>
+                  <span class={styles.hintReady}>Variables ready</span>
                 </Show>
               </span>
             </Show>
-            <span class="composer-hint hint-shortcut">
+            <span class={`${styles.composerHint} ${styles.hintShortcut}`}>
               <kbd>⌘</kbd><kbd>↵</kbd>
             </span>
           </div>
           <button
-            class="btn btn-primary send-btn"
+            class={`${btn} ${btnPrimary} ${styles.sendBtn}`}
             onClick={handleSend}
             disabled={isDisabled() || !message().trim() || !!jsonError() || hasUnresolvedVariables()}
           >

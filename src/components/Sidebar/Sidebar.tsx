@@ -3,7 +3,8 @@ import { useCollections, MessageTemplate } from '../../stores/collections';
 import { useConnection, Connection } from '../../stores/connections';
 import { MessageFormat } from '../../stores/connections';
 import { MessageTab } from '../../App';
-import './Sidebar.css';
+import * as styles from './Sidebar.css';
+import { btn, btnPrimary, btnSecondary, btnIcon, input, inputMono, sectionHeader } from '../../styles/global.css';
 
 interface SidebarProps {
   onSelectTemplate: (template: MessageTemplate) => void;
@@ -143,19 +144,19 @@ export const Sidebar: Component<SidebarProps> = (props) => {
 
   const getFormatBadgeClass = (format: MessageFormat) => {
     switch (format) {
-      case 'json': return 'format-json';
-      case 'text': return 'format-text';
-      case 'binary': return 'format-binary';
+      case 'json': return styles.formatJson;
+      case 'text': return styles.formatText;
+      case 'binary': return styles.formatBinary;
       default: return '';
     }
   };
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case 'connected': return 'status-connected';
-      case 'connecting': return 'status-connecting';
-      case 'error': return 'status-error';
-      default: return 'status-disconnected';
+      case 'connected': return styles.statusConnected;
+      case 'connecting': return styles.statusConnecting;
+      case 'error': return styles.statusError;
+      default: return styles.statusDisconnected;
     }
   };
 
@@ -246,56 +247,56 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   };
 
   return (
-    <div class="sidebar-content">
-      <div class="sidebar-header">
-        <div class="window-controls">
-          <button class="window-btn close" onClick={handleClose} title="Close">
-            <span class="window-btn-icon" />
+    <div class={styles.sidebarContent}>
+      <div class={styles.sidebarHeader}>
+        <div class={styles.windowControls}>
+          <button class={`${styles.windowBtn} ${styles.windowBtnClose}`} onClick={handleClose} title="Close">
+            <span class={styles.windowBtnIcon} />
           </button>
-          <button class="window-btn minimize" onClick={handleMinimize} title="Minimize">
-            <span class="window-btn-icon" />
+          <button class={`${styles.windowBtn} ${styles.windowBtnMinimize}`} onClick={handleMinimize} title="Minimize">
+            <span class={styles.windowBtnIcon} />
           </button>
-          <button class="window-btn maximize" onClick={handleMaximize} title="Maximize">
-            <span class="window-btn-icon" />
+          <button class={`${styles.windowBtn} ${styles.windowBtnMaximize}`} onClick={handleMaximize} title="Maximize">
+            <span class={styles.windowBtnIcon} />
           </button>
         </div>
-        <div class="sidebar-logo">
+        <div class={styles.sidebarLogo}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 11a9 9 0 0 1 9 9"></path>
             <path d="M4 4a16 16 0 0 1 16 16"></path>
             <circle cx="5" cy="19" r="2"></circle>
           </svg>
-          <span class="logo-text">WSup</span>
+          <span class={styles.logoText}>WSup</span>
         </div>
       </div>
 
       <Show when={showNewCollection()}>
-        <div class="new-collection-form">
+        <div class={styles.newCollectionForm}>
           <input
             type="text"
-            class="input"
+            class={input}
             placeholder="Collection name"
             value={newCollectionName()}
             onInput={(e) => setNewCollectionName(e.currentTarget.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateCollection()}
             autofocus
           />
-          <div class="form-actions">
-            <button class="btn btn-secondary btn-sm" onClick={() => setShowNewCollection(false)}>
+          <div class={styles.formActions}>
+            <button class={`${btn} ${btnSecondary} ${styles.btnSm}`} onClick={() => setShowNewCollection(false)}>
               Cancel
             </button>
-            <button class="btn btn-primary btn-sm" onClick={handleCreateCollection}>
+            <button class={`${btn} ${btnPrimary} ${styles.btnSm}`} onClick={handleCreateCollection}>
               Create
             </button>
           </div>
         </div>
       </Show>
 
-      <div class="sidebar-section templates-section">
-        <div class="section-header">
+      <div class={`${styles.sidebarSection} ${styles.templatesSection}`}>
+        <div class={sectionHeader}>
           <span>Message Templates</span>
           <button
-            class="btn-icon btn-sm"
+            class={`${btnIcon} ${styles.btnSm}`}
             onClick={() => setShowNewCollection(true)}
             title="New collection"
           >
@@ -306,12 +307,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           </button>
         </div>
         
-        <div class="collections-list">
+        <div class={styles.collectionsList}>
           <For each={collections.collections}>
             {(collection) => (
-              <div class="collection">
+              <div class={styles.collection}>
                 <div
-                  class="collection-header"
+                  class={styles.collectionHeader}
                   onClick={() => toggleCollection(collection.id)}
                 >
                   <svg
@@ -321,17 +322,16 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
-                    class="collection-chevron"
-                    classList={{ expanded: collection.isExpanded }}
+                    class={`${styles.collectionChevron} ${collection.isExpanded ? styles.collectionChevronExpanded : ''}`}
                   >
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                   </svg>
-                  <span class="collection-name">{collection.name}</span>
+                  <span class={styles.collectionName}>{collection.name}</span>
                   <button
-                    class="btn-icon btn-sm collection-add-btn"
+                    class={`${btnIcon} ${styles.btnSm} ${styles.collectionAddBtn}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleStartCreateTemplate(collection.id);
@@ -346,14 +346,14 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                 </div>
 
                 <Show when={collection.isExpanded}>
-                  <div class="collection-items">
+                  <div class={styles.collectionItems}>
                     {/* New template inline input */}
                     <Show when={creatingTemplateInCollection() === collection.id}>
-                      <div class="template-item new-template-item">
+                      <div class={`${styles.templateItem} ${styles.newTemplateItem}`}>
                         <input
                           ref={newTemplateInputRef}
                           type="text"
-                          class="template-name-input"
+                          class={styles.templateNameInput}
                           value={newTemplateName()}
                           onInput={(e) => setNewTemplateName(e.currentTarget.value)}
                           onKeyDown={(e) => {
@@ -382,8 +382,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                         
                         return (
                           <div
-                            class="template-item"
-                            classList={{ open: isOpen() }}
+                            class={`${styles.templateItem} ${isOpen() ? styles.templateItemOpen : ''}`}
                             onClick={() => {
                               if (isRenaming()) return;
                               // Open the template (or focus if already open)
@@ -396,11 +395,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                             }}
                             title={isRenaming() ? undefined : `Click to open, double-click to rename`}
                           >
-                            <div class="template-info">
+                            <div class={styles.templateInfo}>
                               <Show 
                                 when={isRenaming()}
                                 fallback={
-                                  <span class="template-name">
+                                  <span class={styles.templateName}>
                                     {template.name}
                                   </span>
                                 }
@@ -408,7 +407,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                                 <input
                                   ref={renameInputRef}
                                   type="text"
-                                  class="template-name-input"
+                                  class={styles.templateNameInput}
                                   value={renameValue()}
                                   onInput={(e) => setRenameValue(e.currentTarget.value)}
                                   onKeyDown={(e) => {
@@ -429,12 +428,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                                   onDblClick={(e) => e.stopPropagation()}
                                 />
                               </Show>
-                              <span class={`template-format ${getFormatBadgeClass(template.format)}`}>
+                              <span class={`${styles.templateFormat} ${getFormatBadgeClass(template.format)}`}>
                                 {template.format.toUpperCase()}
                               </span>
                             </div>
                             <Show when={template.variables && template.variables.length > 0}>
-                              <div class="template-vars">
+                              <div class={styles.templateVars}>
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -443,7 +442,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                               </div>
                             </Show>
                             <button
-                              class="item-delete"
+                              class={styles.itemDelete}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 removeTemplate(collection.id, template.id);
@@ -460,7 +459,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                     </For>
                     
                     <Show when={collection.templates.length === 0}>
-                      <div class="empty-collection">
+                      <div class={styles.emptyCollection}>
                         <span>No templates yet</span>
                       </div>
                     </Show>
@@ -472,11 +471,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         </div>
       </div>
 
-      <div class="sidebar-section connections-section">
-        <div class="section-header">
+      <div class={`${styles.sidebarSection} ${styles.connectionsSection}`}>
+        <div class={sectionHeader}>
           <span>Connections</span>
           <button
-            class="btn-icon btn-sm"
+            class={`${btnIcon} ${styles.btnSm}`}
             onClick={() => setShowNewConnection(true)}
             title="New connection"
           >
@@ -487,12 +486,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           </button>
         </div>
 
-        <div class="connections-list">
+        <div class={styles.connectionsList}>
           <Show when={showNewConnection()}>
-            <div class="new-connection-form">
+            <div class={styles.newConnectionForm}>
               <input
                 type="text"
-                class="input input-mono"
+                class={`${input} ${inputMono}`}
                 placeholder="wss://example.com/socket"
                 value={newConnectionUrl()}
                 onInput={(e) => setNewConnectionUrl(e.currentTarget.value)}
@@ -502,11 +501,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                 }}
                 autofocus
               />
-              <div class="form-actions">
-                <button class="btn btn-secondary btn-sm" onClick={() => setShowNewConnection(false)}>
+              <div class={styles.formActions}>
+                <button class={`${btn} ${btnSecondary} ${styles.btnSm}`} onClick={() => setShowNewConnection(false)}>
                   Cancel
                 </button>
-                <button class="btn btn-primary btn-sm" onClick={handleAddConnection}>
+                <button class={`${btn} ${btnPrimary} ${styles.btnSm}`} onClick={handleAddConnection}>
                   Connect
                 </button>
               </div>
@@ -517,7 +516,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             when={connectionState.connections.length > 0}
             fallback={
               <Show when={!showNewConnection()}>
-                <div class="empty-state">
+                <div class={styles.emptyState}>
                   <span>No connections yet</span>
                 </div>
               </Show>
@@ -526,21 +525,17 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             <For each={connectionState.connections}>
               {(conn) => (
                 <div
-                  class="connection-item"
-                  classList={{ 
-                    selected: connectionState.selectedId === conn.id,
-                    connected: conn.status === 'connected'
-                  }}
+                  class={`${styles.connectionItem} ${connectionState.selectedId === conn.id ? styles.connectionItemSelected : ''} ${conn.status === 'connected' ? styles.connectionItemConnected : ''}`}
                   onClick={() => handleConnectionClick(conn)}
                   title={conn.url}
                 >
-                  <div class="connection-info">
-                    <span class={`connection-status-dot ${getStatusClass(conn.status)}`}></span>
-                    <span class="connection-url mono">{getHostname(conn.url)}</span>
+                  <div class={styles.connectionInfo}>
+                    <span class={`${styles.connectionStatusDot} ${getStatusClass(conn.status)}`}></span>
+                    <span class={`${styles.connectionUrl} mono`}>{getHostname(conn.url)}</span>
                   </div>
-                  <div class="connection-actions">
+                  <div class={styles.connectionActions}>
                     <button
-                      class="btn-icon btn-xs"
+                      class={`${btnIcon} ${styles.btnXs}`}
                       onClick={(e) => handleToggleConnection(e, conn)}
                       title={conn.status === 'connected' ? 'Disconnect' : 'Connect'}
                     >
@@ -555,7 +550,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
                       )}
                     </button>
                     <button
-                      class="btn-icon btn-xs btn-danger-hover"
+                      class={`${btnIcon} ${styles.btnXs} ${styles.btnDangerHover}`}
                       onClick={(e) => handleRemoveConnection(e, conn.id)}
                       title="Remove connection"
                     >

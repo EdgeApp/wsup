@@ -1,7 +1,8 @@
 import { Component, For, Show, createEffect, createSignal, createMemo } from 'solid-js';
 import { useConnection, Message } from '../../stores/connections';
 import { formatTime, formatBytes, formatJson } from '../../utils/formatters';
-import './MessageLog.css';
+import * as styles from './MessageLog.css';
+import { btnIcon } from '../../styles/global.css';
 
 export const MessageLog: Component = () => {
   const { state, selectedConnection, clearMessages } = useConnection();
@@ -46,27 +47,27 @@ export const MessageLog: Component = () => {
   };
 
   return (
-    <div class="message-log">
-      <div class="log-header">
-        <div class="log-title">
+    <div class={styles.messageLog}>
+      <div class={styles.logHeader}>
+        <div class={styles.logTitle}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
           </svg>
           <span>Messages</span>
           <Show when={currentConnection()}>
-            <span class="log-connection mono">
-              <span class={`status-indicator ${currentConnection()?.status === 'connected' ? 'connected' : ''}`}></span>
+            <span class={`${styles.logConnection} mono`}>
+              <span class={`${styles.statusIndicator} ${currentConnection()?.status === 'connected' ? styles.statusIndicatorConnected : ''}`}></span>
               {getHostname(currentConnection()!.url)}
             </span>
           </Show>
           <Show when={messages().length > 0}>
-            <span class="log-count">{messages().length}</span>
+            <span class={styles.logCount}>{messages().length}</span>
           </Show>
         </div>
         
-        <div class="log-controls">
+        <div class={styles.logControls}>
           <button
-            class="btn-icon"
+            class={btnIcon}
             onClick={() => clearMessages()}
             disabled={messages().length === 0}
             title="Clear messages"
@@ -79,12 +80,12 @@ export const MessageLog: Component = () => {
         </div>
       </div>
 
-      <div class="log-body-wrapper">
-        <div class="log-body" ref={logRef} onScroll={handleScroll}>
+      <div class={styles.logBodyWrapper}>
+        <div class={styles.logBody} ref={logRef} onScroll={handleScroll}>
           <Show
             when={messages().length > 0}
             fallback={
-              <div class="log-empty">
+              <div class={styles.logEmpty}>
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -95,9 +96,9 @@ export const MessageLog: Component = () => {
           >
             <For each={messages()}>
               {(msg) => (
-                <div class={`log-message ${msg.type}`}>
-                  <div class="message-header">
-                    <span class="message-direction">
+                <div class={`${styles.logMessage} ${msg.type === 'sent' ? styles.logMessageSent : styles.logMessageReceived}`}>
+                  <div class={styles.messageHeader}>
+                    <span class={`${styles.messageDirection} ${msg.type === 'sent' ? styles.messageDirectionSent : styles.messageDirectionReceived}`}>
                       {msg.type === 'sent' ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -111,13 +112,13 @@ export const MessageLog: Component = () => {
                       )}
                       {msg.type === 'sent' ? 'SENT' : 'RECEIVED'}
                     </span>
-                    <span class="message-meta">
-                      <span class="message-format">{msg.format.toUpperCase()}</span>
-                      <span class="message-size">{formatBytes(msg.size)}</span>
-                      <span class="message-time">{formatTime(msg.timestamp)}</span>
+                    <span class={styles.messageMeta}>
+                      <span class={styles.messageFormat}>{msg.format.toUpperCase()}</span>
+                      <span>{formatBytes(msg.size)}</span>
+                      <span>{formatTime(msg.timestamp)}</span>
                     </span>
                   </div>
-                  <pre class="message-content mono">{renderContent(msg)}</pre>
+                  <pre class={`${styles.messageContent} mono`}>{renderContent(msg)}</pre>
                 </div>
               )}
             </For>
@@ -126,7 +127,7 @@ export const MessageLog: Component = () => {
         
         <Show when={!autoScroll() && messages().length > 0}>
           <button
-            class="scroll-to-bottom-fab"
+            class={styles.scrollToBottomFab}
             onClick={() => {
               setAutoScroll(true);
               if (logRef) logRef.scrollTop = logRef.scrollHeight;
