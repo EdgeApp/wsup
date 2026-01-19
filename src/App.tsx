@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount, createEffect } from 'solid-js';
+import { Component, createSignal, onMount, onCleanup } from 'solid-js';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { MessageComposer } from './components/MessageComposer/MessageComposer';
 import { MessageLog } from './components/MessageLog/MessageLog';
@@ -24,28 +24,48 @@ export interface MessageTab {
 let tabIdCounter = 0;
 const generateTabId = () => `tab-${++tabIdCounter}`;
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+// Get the resolved theme (light/dark) based on mode and system preference
+const getResolvedTheme = (mode: ThemeMode): 'light' | 'dark' => {
+  if (mode === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return mode;
+};
+
 const App: Component = () => {
-  const [theme, setTheme] = createSignal<'light' | 'dark'>('dark');
+  const [themeMode, setThemeMode] = createSignal<ThemeMode>('system');
+  const [resolvedTheme, setResolvedTheme] = createSignal<'light' | 'dark'>('dark');
   const [tabs, setTabs] = createSignal<MessageTab[]>([]);
   const [activeTabId, setActiveTabId] = createSignal<string | null>(null);
 
-  // Create initial tab on mount
+  // Create initial tab on mount and listen for system theme changes
   onMount(() => {
-    const saved = localStorage.getItem('wsup-theme') as 'light' | 'dark' | null;
-    if (saved) {
-      setTheme(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      setTheme('light');
-    }
+    const saved = localStorage.getItem('wsup-theme') as ThemeMode | null;
+    const mode = saved || 'system';
+    setThemeMode(mode);
+    setResolvedTheme(getResolvedTheme(mode));
+
+    // Listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = () => {
+      // Update resolved theme when in system mode
+      if (themeMode() === 'system') {
+        setResolvedTheme(getResolvedTheme('system'));
+      }
+    };
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    onCleanup(() => mediaQuery.removeEventListener('change', handleSystemThemeChange));
 
     // Create a default tab
     createNewTab();
   });
 
-  const toggleTheme = () => {
-    const newTheme = theme() === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('wsup-theme', newTheme);
+  const setTheme = (mode: ThemeMode) => {
+    setThemeMode(mode);
+    setResolvedTheme(getResolvedTheme(mode));
+    localStorage.setItem('wsup-theme', mode);
   };
 
   // Get the active tab
@@ -165,14 +185,14 @@ const App: Component = () => {
   return (
     <CollectionsProvider>
       <ConnectionProvider>
-        <div class={app} data-theme={theme()}>
+        <div class={app} data-theme={resolvedTheme()}>
           <aside class={sidebar}>
             <Sidebar 
               onSelectTemplate={openTemplateInTab}
               activeTab={activeTab()}
             />
             <div class={sidebarFooter}>
-              <ThemeToggle theme={theme()} onToggle={toggleTheme} />
+              <ThemeToggle mode={themeMode()} onModeChange={setTheme} />
             </div>
           </aside>
           <main class={mainPanel}>
