@@ -138,33 +138,26 @@ export const ConnectionProvider: ParentComponent = (props) => {
   };
 
   const connect = (id: string) => {
-    const connIndex = state.connections.findIndex(c => c.id === id);
-    if (connIndex === -1) return;
+    const conn = state.connections.find(c => c.id === id);
+    if (!conn) return;
 
-    const conn = state.connections[connIndex];
-    
     // Close existing connection if any
     if (conn.ws) {
       conn.ws.close();
     }
 
-    setState('connections', connIndex, 'status', 'connecting');
-    setState('connections', connIndex, 'error', null);
+    // Use predicate-based setState to update by id, not index
+    setState('connections', c => c.id === id, 'status', 'connecting');
+    setState('connections', c => c.id === id, 'error', null);
 
     try {
       const ws = new WebSocket(conn.url);
 
       ws.onopen = () => {
-        const idx = state.connections.findIndex(c => c.id === id);
-        if (idx !== -1) {
-          setState('connections', idx, 'status', 'connected');
-        }
+        setState('connections', c => c.id === id, 'status', 'connected');
       };
 
       ws.onmessage = (event) => {
-        const idx = state.connections.findIndex(c => c.id === id);
-        if (idx === -1) return;
-
         const isBinary = event.data instanceof Blob || event.data instanceof ArrayBuffer;
         let content = '';
         let format: MessageFormat = 'text';
@@ -199,45 +192,39 @@ export const ConnectionProvider: ParentComponent = (props) => {
           size,
         };
 
-        setState('connections', idx, 'messages', msgs => [...msgs, message]);
+        setState('connections', c => c.id === id, 'messages', msgs => [...msgs, message]);
       };
 
       ws.onerror = () => {
-        const idx = state.connections.findIndex(c => c.id === id);
-        if (idx !== -1) {
-          setState('connections', idx, 'status', 'error');
-          setState('connections', idx, 'error', 'Connection error occurred');
-        }
+        setState('connections', c => c.id === id, 'status', 'error');
+        setState('connections', c => c.id === id, 'error', 'Connection error occurred');
       };
 
       ws.onclose = () => {
-        const idx = state.connections.findIndex(c => c.id === id);
-        if (idx !== -1) {
-          const currentStatus = state.connections[idx].status;
-          if (currentStatus !== 'error') {
-            setState('connections', idx, 'status', 'disconnected');
-          }
-          setState('connections', idx, 'ws', null);
+        // Check current status to avoid overwriting error state
+        const currentConn = state.connections.find(c => c.id === id);
+        if (currentConn && currentConn.status !== 'error') {
+          setState('connections', c => c.id === id, 'status', 'disconnected');
         }
+        setState('connections', c => c.id === id, 'ws', null);
       };
 
-      setState('connections', connIndex, 'ws', ws);
+      setState('connections', c => c.id === id, 'ws', ws);
     } catch (err) {
-      setState('connections', connIndex, 'status', 'error');
-      setState('connections', connIndex, 'error', err instanceof Error ? err.message : 'Failed to connect');
+      setState('connections', c => c.id === id, 'status', 'error');
+      setState('connections', c => c.id === id, 'error', err instanceof Error ? err.message : 'Failed to connect');
     }
   };
 
   const disconnect = (id: string) => {
-    const connIndex = state.connections.findIndex(c => c.id === id);
-    if (connIndex === -1) return;
+    const conn = state.connections.find(c => c.id === id);
+    if (!conn) return;
 
-    const conn = state.connections[connIndex];
     if (conn.ws) {
       conn.ws.close();
-      setState('connections', connIndex, 'ws', null);
+      setState('connections', c => c.id === id, 'ws', null);
     }
-    setState('connections', connIndex, 'status', 'disconnected');
+    setState('connections', c => c.id === id, 'status', 'disconnected');
   };
 
   const send = (message: string, format: MessageFormat) => {
@@ -245,9 +232,6 @@ export const ConnectionProvider: ParentComponent = (props) => {
     if (!conn?.ws || conn.status !== 'connected') {
       return;
     }
-
-    const connIndex = state.connections.findIndex(c => c.id === conn.id);
-    if (connIndex === -1) return;
 
     try {
       if (format === 'json') {
@@ -265,7 +249,7 @@ export const ConnectionProvider: ParentComponent = (props) => {
         size: new Blob([message]).size,
       };
 
-      setState('connections', connIndex, 'messages', msgs => [...msgs, msg]);
+      setState('connections', c => c.id === conn.id, 'messages', msgs => [...msgs, msg]);
     } catch (err) {
       console.error('Failed to send message:', err);
     }
@@ -275,16 +259,13 @@ export const ConnectionProvider: ParentComponent = (props) => {
     const targetId = id || state.selectedId;
     if (!targetId) return;
     
-    const connIndex = state.connections.findIndex(c => c.id === targetId);
-    if (connIndex !== -1) {
-      setState('connections', connIndex, 'messages', []);
-    }
+    setState('connections', c => c.id === targetId, 'messages', []);
   };
 
   const updateConnectionUrl = (id: string, url: string) => {
-    const connIndex = state.connections.findIndex(c => c.id === id);
-    if (connIndex !== -1) {
-      setState('connections', connIndex, 'url', url);
+    const conn = state.connections.find(c => c.id === id);
+    if (conn) {
+      setState('connections', c => c.id === id, 'url', url);
       saveToStorage();
     }
   };
