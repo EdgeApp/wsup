@@ -174,16 +174,21 @@ export const logMessage = style({
   marginBottom: '12px',
   borderRadius: '8px',
   overflow: 'hidden',
+  maxWidth: '85%',
 });
 
 export const logMessageSent = style({
   background: vars.msg.sentBg,
   border: `1px solid ${vars.msg.sentBorder}`,
+  marginLeft: 'auto',
+  marginRight: '0',
 });
 
 export const logMessageReceived = style({
   background: vars.msg.recvBg,
   border: `1px solid ${vars.msg.recvBorder}`,
+  marginLeft: '0',
+  marginRight: 'auto',
 });
 
 export const messageHeader = style({
